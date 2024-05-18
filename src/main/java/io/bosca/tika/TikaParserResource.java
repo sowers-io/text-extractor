@@ -1,11 +1,12 @@
-package org.acme.tika;
+package io.bosca.tika;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -25,15 +26,13 @@ public class TikaParserResource {
     @POST
     @Path("/text")
     @Produces(MediaType.TEXT_PLAIN)
-    public String extractText(InputStream stream) {
-        Instant start = Instant.now();
-
-        String text = parser.getText(stream);
-
-        Instant finish = Instant.now();
-
-        log.info(Duration.between(start, finish).toMillis() + " mls have passed");
-
-        return text;
+    public String extractText(InputStream stream) throws IOException {
+        try (BufferedInputStream buf = new BufferedInputStream(stream)) {
+            Instant start = Instant.now();
+            String text = parser.getText(buf);
+            Instant finish = Instant.now();
+            log.info(Duration.between(start, finish).toMillis() + " mls have passed");
+            return text;
+        }
     }
 }
